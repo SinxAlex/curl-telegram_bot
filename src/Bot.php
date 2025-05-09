@@ -149,6 +149,10 @@ class Bot
         $this->appointmentPage($idShedule);
     }
 
+    /**
+     * @param $idShedule
+     * @return void
+     */
 
     public function appointmentPage($idShedule):void
     {
@@ -166,8 +170,93 @@ class Bot
             CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
         ];
 
+         $this->fileGetContents($curl_options_array);
+    }
+
+
+    public function appointmentPost($adres,$date,$time,$csrftoken,$idShedule):string
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/schedule/'.$idShedule.'/appointment';
+
+        $postData=[
+            'utf8'=>'✓',
+            'authenticity_token'=>$csrftoken,
+            'confirmed_limit_message'=> 1,
+            'use_consulate_appointment_capacity'=> 'true',
+            "appointments[consulate_appointment][facility_id]"=> $adres,
+            'appointments[consulate_appointment][date]'=>$date,
+            'appointments[consulate_appointment][time]'=>$time
+        ];
+
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_POST           =>true,
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+            CURLOPT_POSTFIELDS     =>http_build_query($postData)
+        ];
         $this->fileGetContents($curl_options_array);
     }
+
+    public function getAdresJson($idShedule):string
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/schedule/'.$idShedule.'/appointment/address/95';
+
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_POST           =>false,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_HTTPHEADER     =>[
+                'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+            ],
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+        ];
+
+        $this->fileGetContents($curl_options_array);
+    }
+
+
+    public function getDateJson($adres,$idShedule):string
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/schedule/'.$idShedule.'/appointment/address/'.$adres;
+
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_POST           =>false,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_HTTPHEADER     =>[
+                'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+            ],
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+        ];
+
+        $this->fileGetContents($curl_options_array);
+    }
+
+    public  function getTimeJson($adres,$date,$idShedule):string
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/schedule/'.$idShedule.'/appointment/times/'.$adres.'.json?date='.$date.'&appointments[expedite]=false';
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_POST           =>false,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_HTTPHEADER     =>[
+                'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+            ],
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+        ];
+
+        $this->fileGetContents($curl_options_array);
+    }
+
 
     /**
      * @param $headers
@@ -180,6 +269,7 @@ class Bot
         curl_setopt_array($ch,$headers);
         $response = curl_exec($ch);
         curl_close($ch);
+
         return $response;
     }
 
@@ -202,6 +292,7 @@ class Bot
                 $csrfToken=$meta->getAttribute('content');
             }
         }
+
         return $csrfToken ;
     }
 
@@ -220,6 +311,7 @@ class Bot
         );
         $queryString = str_replace('%21', '!', $queryString);
         $queryString = str_replace('utf8=%3F', 'utf8=%E2%9C%93', $queryString);
+
         return  $queryString;
     }
 
@@ -238,17 +330,41 @@ class Bot
         } else {
             echo "Номер группы не найден!";
         }
+
         return $groupId;
+    }
+
+
+    public  function signoutPage():void
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/users/sign_out';
+
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_POST           =>false,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_HTTPHEADER     =>[
+                                      'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+                                     ],
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+        ];
+
+        $this->fileGetContents($curl_options_array);
+
     }
 
     static function getIdShedule($html):string
     {
         $number='';
         if (preg_match('~/en-ca/niv/schedule/(\d+)/applicants/~', $html, $matches)) {
-            $number = $matches[1]; // 50643598
-
+            $number = $matches[1];
         }
+
         return  $number;
     }
+
+
 
 }
