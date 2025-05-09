@@ -52,6 +52,7 @@ class Bot
     public function openSignIn():void
     {
         $this->url='https://ais.usvisa-info.com/en-ca/niv/users/sign_in';
+
         $curl_options_array=[
             CURLOPT_URL            =>$this->url,
             CURLOPT_RETURNTRANSFER =>true,
@@ -59,9 +60,10 @@ class Bot
             CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
             CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
             CURLOPT_HTTPHEADER     => [
-                                       'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
-                                       ],
+                                        'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+                                      ],
         ];
+
         $html=$this->fileGetContents($curl_options_array);
         $csrfToken=self::getCSRFToken($html);
         $this->auth($csrfToken);
@@ -74,20 +76,22 @@ class Bot
     public  function auth($csrfToken):void
     {
         $this->url='https://ais.usvisa-info.com/en-ca/niv/users/sign_in';
+
         $curl_options_array=[
             CURLOPT_URL            =>$this->url,
-            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_RETURNTRANSFER =>true,
             CURLOPT_HEADER         =>true,
-            CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => [
-                                    'X-CSRF-TOKEN: ' . $csrfToken,
-                                    'Content-Type: application/x-www-form-urlencoded',
-                                    'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+            CURLOPT_POST           =>true,
+            CURLOPT_HTTPHEADER     =>[
+                                        'X-CSRF-TOKEN: ' . $csrfToken,
+                                        'Content-Type: application/x-www-form-urlencoded',
+                                        'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
                                      ],
             CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
             CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
-            CURLOPT_POSTFIELDS     =>self::returnQueryString(self::$post_field_auth)
+            CURLOPT_POSTFIELDS     =>self::getQueryString(self::$post_field_auth)
         ];
+
       $this->fileGetContents($curl_options_array);
       $this->acountPage();
     }
@@ -98,14 +102,15 @@ class Bot
     public  function acountPage():void
     {
         $this->url='https://ais.usvisa-info.com/en-ca/niv/account';
+
         $curl_options_array=[
             CURLOPT_URL            =>$this->url,
             CURLOPT_RETURNTRANSFER =>true,
-            CURLOPT_POST           => false,
+            CURLOPT_POST           =>false,
       //    CURLOPT_HEADER        =>true,
-            CURLOPT_HTTPHEADER     => [
+            CURLOPT_HTTPHEADER     =>[
                                         'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
-                                       ],
+                                      ],
             CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
             CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
 
@@ -125,19 +130,43 @@ class Bot
     public  function groupPage($groupId):void
     {
         $this->url='https://ais.usvisa-info.com/en-ca/niv/groups/'.$groupId;
+
         $curl_options_array=[
             CURLOPT_URL            =>$this->url,
             CURLOPT_RETURNTRANSFER =>true,
             CURLOPT_POST           =>false,
             CURLOPT_HEADER         =>true,
-            CURLOPT_HTTPHEADER     => [
-                                      'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+            CURLOPT_HTTPHEADER     =>[
+                                       'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
                                       ],
             CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
             CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
 
         ];
-        echo $this->fileGetContents($curl_options_array);
+        $html=$this->fileGetContents($curl_options_array);
+        $idShedule=self::getIdShedule($html);
+
+        $this->appointmentPage($idShedule);
+    }
+
+
+    public function appointmentPage($idShedule):void
+    {
+        $this->url='https://ais.usvisa-info.com/en-ca/niv/schedule/'.$idShedule.'/appointment';
+
+        $curl_options_array=[
+            CURLOPT_URL            =>$this->url,
+            CURLOPT_RETURNTRANSFER =>true,
+            CURLOPT_POST           =>false,
+            CURLOPT_HEADER         =>true,
+            CURLOPT_HTTPHEADER     =>[
+                                       'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+                                      ],
+            CURLOPT_COOKIEFILE     =>$this->FILE_COOKIE_USER,
+            CURLOPT_COOKIEJAR      =>$this->FILE_COOKIE_USER,
+        ];
+
+        $this->fileGetContents($curl_options_array);
     }
 
     /**
@@ -190,8 +219,8 @@ class Bot
             $queryString
         );
         $queryString = str_replace('%21', '!', $queryString);
-
-        return  $queryString = str_replace('utf8=%3F', 'utf8=%E2%9C%93', $queryString);
+        $queryString = str_replace('utf8=%3F', 'utf8=%E2%9C%93', $queryString);
+        return  $queryString;
     }
 
     /**
@@ -210,6 +239,16 @@ class Bot
             echo "Номер группы не найден!";
         }
         return $groupId;
+    }
+
+    static function getIdShedule($html):string
+    {
+        $number='';
+        if (preg_match('~/en-ca/niv/schedule/(\d+)/applicants/~', $html, $matches)) {
+            $number = $matches[1]; // 50643598
+
+        }
+        return  $number;
     }
 
 }
