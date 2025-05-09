@@ -1,0 +1,19 @@
+{
+  "name": "sinxalex/botvisa",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "sinxalex",
+      "email": "aleshaascet@example.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "BotVisa\\": "src/"
+    }
+  },
+  "require": {
+  }
+}
